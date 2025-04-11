@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,8 +33,8 @@ func (h Handler) ListProfiles(c *gin.Context) {
 
 func (h Handler) CreateProfile(c *gin.Context) {
 	var req struct {
-		Name string `json:"name"`
-		Age  int    `json:"age"`
+		Name string `json:"name" binding:"required"`
+		Age  int    `json:"age" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,9 +43,13 @@ func (h Handler) CreateProfile(c *gin.Context) {
 	}
 
 	if err := h.service.CreateProfile(req.Name, req.Age); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		if errors.Is(err, s.ErrDuplicateProfileName) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
 		return
 	}
 
