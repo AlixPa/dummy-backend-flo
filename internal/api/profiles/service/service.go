@@ -1,9 +1,8 @@
 package service
 
 import (
-	"log"
+	"fmt"
 	"os"
-	"path"
 
 	"github.com/gocarina/gocsv"
 )
@@ -14,15 +13,15 @@ type Profile struct {
 }
 
 type Config struct {
-	DbPath string
+	DbCsvPath string
 }
 
 type Service struct {
-	dbPath string
+	dbCsvPath string
 }
 
 func New(cfg Config) *Service {
-	return &Service{dbPath: cfg.DbPath}
+	return &Service{dbCsvPath: cfg.DbCsvPath}
 }
 
 func loadProfiles(path string) ([]*Profile, error) {
@@ -39,8 +38,21 @@ func loadProfiles(path string) ([]*Profile, error) {
 	return profiles, nil
 }
 
-func (s *Service) ListProfiles() []*Profile {
-	ls, err := loadProfiles(path.Join(s.dbPath, "profiles.csv"))
-	log.Print(err)
-	return ls
+func (s *Service) ListProfiles() ([]*Profile, error) {
+	return loadProfiles(s.dbCsvPath)
+}
+
+func (s *Service) CreateProfile(name string, age int) error {
+	f, err := os.OpenFile(s.dbCsvPath, os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = fmt.Fprintf(f, "%s,%d\n", name, age)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

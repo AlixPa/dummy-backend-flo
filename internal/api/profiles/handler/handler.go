@@ -17,8 +17,36 @@ func New(cfg s.Config) *Handler {
 }
 
 func (h Handler) ListProfiles(c *gin.Context) {
-	response := h.service.ListProfiles()
-	c.JSON(http.StatusOK, gin.H{
-		"data": response,
-	})
+	response, err := h.service.ListProfiles()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"data": response,
+		})
+	}
+}
+
+func (h Handler) CreateProfile(c *gin.Context) {
+	var req struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := h.service.CreateProfile(req.Name, req.Age); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

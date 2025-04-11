@@ -14,4 +14,5 @@ func RegisterRoutes(cfg Config, rg *gin.RouterGroup) {
 	profiles := rg.Group("/profiles")
 
 	profiles.GET("/", handler.ListProfiles)
+	profiles.POST("/", handler.CreateProfile)
 }

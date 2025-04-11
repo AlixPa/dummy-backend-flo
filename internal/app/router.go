@@ -1,6 +1,8 @@
 package app
 
 import (
+	"path"
+
 	"github.com/AlixPa/dummy-backend-flo/internal/api/ping"
 	"github.com/AlixPa/dummy-backend-flo/internal/api/profiles"
 	"github.com/AlixPa/dummy-backend-flo/internal/common"
@@ -14,7 +16,7 @@ func SetupRouter(cfg *common.Config) *gin.Engine {
 
 	api := router.Group("/api")
 	ping.RegisterRoutes(api)
-	profiles.RegisterRoutes(profiles.Config{DbPath: cfg.DbPath}, api)
+	profiles.RegisterRoutes(profiles.Config{DbCsvPath: path.Join(cfg.DbPath, "profiles.csv")}, api)
 
 	return router
 }
