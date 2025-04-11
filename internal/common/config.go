@@ -3,19 +3,27 @@ package common
 import (
 	"log"
 	"os"
+	"path"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Port string
+	Port     string
+	RootPath string
+	DataPath string
+	DbPath   string
 }
 
 func LoadConfig() *Config {
 	loadEnv()
+	root, _ := os.Getwd()
 
 	config := &Config{
-		Port: getEnv("PORT", "8080"),
+		Port:     getEnv("PORT", "8080"),
+		RootPath: root,
+		DataPath: path.Join(root, "data"),
+		DbPath:   path.Join(root, "data", "db"),
 	}
 
 	return config

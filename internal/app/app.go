@@ -9,7 +9,7 @@ import (
 func Run() {
 
 	cfg := common.LoadConfig()
-	router := SetupRouter()
+	router := SetupRouter(cfg)
 
 	log.Printf("Server starting on port %s...\n", cfg.Port)
 	if err := router.Run(":" + cfg.Port); err != nil {

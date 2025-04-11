@@ -1,8 +1,8 @@
-package ping
+package service
 
 import "time"
 
-func GetPingResponse() string {
+func Pong() string {
 	currentTime := time.Now().Format("15:04:05")
 	return "pong at " + currentTime
 }
