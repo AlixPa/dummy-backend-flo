@@ -1,10 +1,12 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/AlixPa/dummy-backend-flo/internal/common"
 	"github.com/gocarina/gocsv"
 )
 
@@ -13,34 +15,33 @@ type Profile struct {
 	Age  int    `csv:"age"`
 }
 
-type Config struct {
-	DbCsvPath string
-}
-
 type Service struct {
-	dbCsvPath string
+	cfg *common.ProfileConfig
 }
 
-func New(cfg Config) *Service {
-	return &Service{dbCsvPath: cfg.DbCsvPath}
+func New(cfg *common.ProfileConfig) *Service {
+	return &Service{cfg}
 }
 
 func loadProfiles(path string) ([]*Profile, error) {
-	f, err := os.OpenFile(path, os.O_RDONLY, 0)
+	f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	var profiles []*Profile
+	profiles := []*Profile{}
 	if err := gocsv.UnmarshalFile(f, &profiles); err != nil {
+		if errors.Is(err, gocsv.ErrEmptyCSVFile) {
+			return profiles, nil
+		}
 		return nil, err
 	}
 	return profiles, nil
 }
 
 func (s *Service) ListProfiles() ([]*Profile, error) {
-	return loadProfiles(s.dbCsvPath)
+	return loadProfiles(s.cfg.DbCsvPath)
 }
 
 func profileExists(path string, name string) (bool, error) {
@@ -58,15 +59,15 @@ func profileExists(path string, name string) (bool, error) {
 }
 
 func (s *Service) CreateProfile(name string, age int) error {
-	o, err := profileExists(s.dbCsvPath, name)
+	o, err := profileExists(s.cfg.DbCsvPath, name)
 	if err != nil {
 		return err
 	}
 	if o {
-		return fmt.Errorf("Profile with name %s is already in database : %w", name, ErrDuplicateProfileName)
+		return fmt.Errorf("Profile with name %s is already in database : %w", name, common.ErrDuplicateProfileName)
 	}
 
-	f, err := os.OpenFile(s.dbCsvPath, os.O_WRONLY|os.O_APPEND, 0644)
+	f, err := os.OpenFile(s.cfg.DbCsvPath, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}

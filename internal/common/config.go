@@ -9,10 +9,35 @@ import (
 )
 
 type Config struct {
-	Port     string
-	RootPath string
-	DataPath string
-	DbPath   string
+	Port         string
+	rootPath     string
+	dataPath     string
+	dbPath       string
+	dbTablesName dbTables
+	Routeur      *RouteurConfig
+}
+type dbTables struct {
+	profiles string
+}
+
+type RouteurConfig struct {
+	Profile *ProfileConfig
+}
+
+type ProfileConfig struct {
+	DbCsvPath string
+}
+
+func (cfg *Config) getProfileConfig() *ProfileConfig {
+	return &ProfileConfig{
+		DbCsvPath: path.Join(cfg.dbPath, cfg.dbTablesName.profiles+".csv"),
+	}
+}
+
+func (cfg *Config) getRouteurConfig() *RouteurConfig {
+	return &RouteurConfig{
+		Profile: cfg.getProfileConfig(),
+	}
 }
 
 func LoadConfig() *Config {
@@ -21,10 +46,14 @@ func LoadConfig() *Config {
 
 	config := &Config{
 		Port:     getEnv("PORT", "8080"),
-		RootPath: root,
-		DataPath: path.Join(root, "data"),
-		DbPath:   path.Join(root, "data", "db"),
+		rootPath: root,
+		dataPath: path.Join(root, "data"),
+		dbPath:   path.Join(root, "data", "db"),
+		dbTablesName: dbTables{
+			profiles: "profiles",
+		},
 	}
+	config.Routeur = config.getRouteurConfig()
 
 	return config
 }

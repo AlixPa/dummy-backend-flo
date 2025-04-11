@@ -7,13 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 
 	s "github.com/AlixPa/dummy-backend-flo/internal/api/profiles/service"
+	"github.com/AlixPa/dummy-backend-flo/internal/common"
 )
 
 type Handler struct {
 	service *s.Service
 }
 
-func New(cfg s.Config) *Handler {
+func New(cfg *common.ProfileConfig) *Handler {
 	return &Handler{service: s.New(cfg)}
 }
 
@@ -43,7 +44,7 @@ func (h Handler) CreateProfile(c *gin.Context) {
 	}
 
 	if err := h.service.CreateProfile(req.Name, req.Age); err != nil {
-		if errors.Is(err, s.ErrDuplicateProfileName) {
+		if errors.Is(err, common.ErrDuplicateProfileName) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{

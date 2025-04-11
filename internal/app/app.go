@@ -9,7 +9,7 @@ import (
 func Run() {
 
 	cfg := common.LoadConfig()
-	router := SetupRouter(cfg)
+	router := SetupRouter(cfg.Routeur)
 
 	if err := router.Run(":" + cfg.Port); err != nil {
 		log.Fatal(err)

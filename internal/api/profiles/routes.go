@@ -2,17 +2,15 @@
 package profiles
 
 import (
-	h "github.com/AlixPa/dummy-backend-flo/internal/api/profiles/handler"
-	s "github.com/AlixPa/dummy-backend-flo/internal/api/profiles/service"
+	"github.com/AlixPa/dummy-backend-flo/internal/api/profiles/handler"
+	"github.com/AlixPa/dummy-backend-flo/internal/common"
 	"github.com/gin-gonic/gin"
 )
 
-type Config = s.Config
-
-func RegisterRoutes(cfg Config, rg *gin.RouterGroup) {
-	handler := h.New(cfg)
+func RegisterRoutes(cfg *common.ProfileConfig, rg *gin.RouterGroup) {
+	h := handler.New(cfg)
 	profiles := rg.Group("/profiles")
 
-	profiles.GET("/", handler.ListProfiles)
-	profiles.POST("/", handler.CreateProfile)
+	profiles.GET("/", h.ListProfiles)
+	profiles.POST("/", h.CreateProfile)
 }
