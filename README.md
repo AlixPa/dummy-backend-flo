@@ -8,6 +8,8 @@ This repository contains the backend for a simple application that manages a lis
 
 You’ll need to have Go installed.
 
+---
+
 **Mac os**
 ```
 brew install go
@@ -18,6 +20,8 @@ brew install go
 1. Visit the [official Go downloads page](https://go.dev/doc/install).
 2. Download the .msi installer for Windows.
 3. Run the installer and follow the setup steps (it sets PATH automatically).
+
+---
 
 Verify the installation (in bash):
 ```bash
