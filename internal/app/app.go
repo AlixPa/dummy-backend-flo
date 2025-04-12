@@ -8,10 +8,13 @@ import (
 
 func Run() {
 
-	cfg := common.LoadConfig()
+	cfg, err := common.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 	router := SetupRouter(cfg)
-
-	if err := router.Run(":" + cfg.Port); err != nil {
+	log.Print(cfg.GetPort())
+	if err := router.Run(":" + cfg.GetPort()); err != nil {
 		log.Fatal(err)
 	}
 }

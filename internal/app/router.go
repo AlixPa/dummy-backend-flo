@@ -7,7 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(cfg *common.Config) *gin.Engine {
+type routeurConfig interface {
+	GetDbTablesCsvPath() common.DbTablesCsv
+}
+
+func SetupRouter(cfg routeurConfig) *gin.Engine {
 	router := gin.Default()
 
 	router.SetTrustedProxies([]string{"127.0.0.1"})

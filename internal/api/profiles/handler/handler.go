@@ -14,7 +14,11 @@ type Handler struct {
 	s *service.Service
 }
 
-func New(cfg *common.Config) *Handler {
+type HandlerConfig interface {
+	GetDbTablesCsvPath() common.DbTablesCsv
+}
+
+func New(cfg HandlerConfig) *Handler {
 	return &Handler{s: service.New(cfg)}
 }
 

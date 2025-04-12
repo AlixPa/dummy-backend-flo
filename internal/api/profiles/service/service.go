@@ -16,10 +16,14 @@ type Profile struct {
 }
 
 type Service struct {
-	cfg *common.Config
+	cfg ServiceConfig
 }
 
-func New(cfg *common.Config) *Service {
+type ServiceConfig interface {
+	GetDbTablesCsvPath() common.DbTablesCsv
+}
+
+func New(cfg ServiceConfig) *Service {
 	return &Service{cfg}
 }
 
@@ -41,7 +45,7 @@ func loadProfiles(path string) ([]*Profile, error) {
 }
 
 func (s *Service) ListProfiles() ([]*Profile, error) {
-	return loadProfiles(s.cfg.DbTablesCsvPath.Profiles)
+	return loadProfiles(s.cfg.GetDbTablesCsvPath().Profiles)
 }
 
 func profileExists(path string, name string) (bool, error) {
@@ -59,7 +63,7 @@ func profileExists(path string, name string) (bool, error) {
 }
 
 func (s *Service) CreateProfile(name string, age int) error {
-	o, err := profileExists(s.cfg.DbTablesCsvPath.Profiles, name)
+	o, err := profileExists(s.cfg.GetDbTablesCsvPath().Profiles, name)
 	if err != nil {
 		return err
 	}
@@ -67,7 +71,7 @@ func (s *Service) CreateProfile(name string, age int) error {
 		return fmt.Errorf("Profile with name %s is already in database : %w", name, common.ErrDuplicateProfileName)
 	}
 
-	f, err := os.OpenFile(s.cfg.DbTablesCsvPath.Profiles, os.O_WRONLY|os.O_APPEND, 0644)
+	f, err := os.OpenFile(s.cfg.GetDbTablesCsvPath().Profiles, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}

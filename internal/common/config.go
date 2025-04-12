@@ -1,56 +1,53 @@
 package common
 
 import (
-	"log"
 	"os"
-	"path"
+	"path/filepath"
 
-	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 )
 
-type Config struct {
-	Port            string
-	RootPath        string
-	DataPath        string
-	DbPath          string
-	DbTablesName    dbTables
-	DbTablesCsvPath dbTables
-}
-type dbTables struct {
+type DbTables struct {
 	Profiles string
 }
 
-func LoadConfig() *Config {
-	loadEnv()
-	root, _ := os.Getwd()
-
-	config := &Config{
-		Port:     getEnv("PORT", "8080"),
-		RootPath: root,
-		DataPath: path.Join(root, "data"),
-		DbPath:   path.Join(root, "data", "db"),
-		DbTablesName: dbTables{
-			Profiles: "profiles",
-		},
-	}
-	config.DbTablesCsvPath = dbTables{
-		Profiles: path.Join(config.DbPath, config.DbTablesName.Profiles+".csv"),
-	}
-
-	return config
+type DbTablesCsv struct {
+	Profiles string
+}
+type Config struct {
+	// One should not modify the Port value by himself, use config.GetPort() instead
+	Port            string      `envconfig:"PORT" default:"8080"`
+	rootPath        string      `ignored:"true"`
+	dataPath        string      `ignored:"true"`
+	dbPath          string      `ignored:"true"`
+	dbTablesName    DbTables    `ignored:"true"`
+	dbTablesCsvPath DbTablesCsv `ignored:"true"`
 }
 
-func loadEnv() {
-	err := godotenv.Load()
+func (c *Config) GetDbTablesCsvPath() DbTablesCsv {
+	return c.dbTablesCsvPath
+}
+
+func (c *Config) GetPort() string {
+	return c.Port
+}
+
+func LoadConfig() (*Config, error) {
+	var cfg Config
+
+	if err := envconfig.Process("", &cfg); err != nil {
+		return nil, err
+	}
+	rootPath, err := os.Getwd()
 	if err != nil {
-		log.Fatal("Error loading .env file: ", err)
+		return nil, err
 	}
-}
+	cfg.rootPath = rootPath
+	cfg.dataPath = filepath.Join(rootPath, "data")
+	cfg.dbPath = filepath.Join(cfg.dataPath, "db")
 
-func getEnv(key, fallback string) string {
-	val := os.Getenv(key)
-	if val == "" {
-		return fallback
-	}
-	return val
+	cfg.dbTablesName = DbTables{Profiles: "profiles"}
+	cfg.dbTablesCsvPath = DbTablesCsv{Profiles: filepath.Join(cfg.dbPath, cfg.dbTablesName.Profiles+".csv")}
+
+	return &cfg, nil
 }

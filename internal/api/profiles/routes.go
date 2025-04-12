@@ -7,7 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(cfg *common.Config, rg *gin.RouterGroup) {
+type ProfileConfig interface {
+	GetDbTablesCsvPath() common.DbTablesCsv
+}
+
+func RegisterRoutes(cfg ProfileConfig, rg *gin.RouterGroup) {
 	h := handler.New(cfg)
 	profiles := rg.Group("/profiles")
 
