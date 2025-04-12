@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(cfg *common.ProfileConfig, rg *gin.RouterGroup) {
+func RegisterRoutes(cfg *common.Config, rg *gin.RouterGroup) {
 	h := handler.New(cfg)
 	profiles := rg.Group("/profiles")
 

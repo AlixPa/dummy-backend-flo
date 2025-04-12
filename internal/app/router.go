@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(cfg *common.RouteurConfig) *gin.Engine {
+func SetupRouter(cfg *common.Config) *gin.Engine {
 	router := gin.Default()
 
 	router.SetTrustedProxies([]string{"127.0.0.1"})
 
 	api := router.Group("/api")
 	ping.RegisterRoutes(api)
-	profiles.RegisterRoutes(cfg.Profile, api)
+	profiles.RegisterRoutes(cfg, api)
 
 	return router
 }

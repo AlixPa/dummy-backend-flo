@@ -16,10 +16,10 @@ type Profile struct {
 }
 
 type Service struct {
-	cfg *common.ProfileConfig
+	cfg *common.Config
 }
 
-func New(cfg *common.ProfileConfig) *Service {
+func New(cfg *common.Config) *Service {
 	return &Service{cfg}
 }
 
@@ -41,7 +41,7 @@ func loadProfiles(path string) ([]*Profile, error) {
 }
 
 func (s *Service) ListProfiles() ([]*Profile, error) {
-	return loadProfiles(s.cfg.DbCsvPath)
+	return loadProfiles(s.cfg.DbTablesCsvPath.Profiles)
 }
 
 func profileExists(path string, name string) (bool, error) {
@@ -59,7 +59,7 @@ func profileExists(path string, name string) (bool, error) {
 }
 
 func (s *Service) CreateProfile(name string, age int) error {
-	o, err := profileExists(s.cfg.DbCsvPath, name)
+	o, err := profileExists(s.cfg.DbTablesCsvPath.Profiles, name)
 	if err != nil {
 		return err
 	}
@@ -67,7 +67,7 @@ func (s *Service) CreateProfile(name string, age int) error {
 		return fmt.Errorf("Profile with name %s is already in database : %w", name, common.ErrDuplicateProfileName)
 	}
 
-	f, err := os.OpenFile(s.cfg.DbCsvPath, os.O_WRONLY|os.O_APPEND, 0644)
+	f, err := os.OpenFile(s.cfg.DbTablesCsvPath.Profiles, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		return err
 	}

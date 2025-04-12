@@ -6,20 +6,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	s "github.com/AlixPa/dummy-backend-flo/internal/api/profiles/service"
+	"github.com/AlixPa/dummy-backend-flo/internal/api/profiles/service"
 	"github.com/AlixPa/dummy-backend-flo/internal/common"
 )
 
 type Handler struct {
-	service *s.Service
+	s *service.Service
 }
 
-func New(cfg *common.ProfileConfig) *Handler {
-	return &Handler{service: s.New(cfg)}
+func New(cfg *common.Config) *Handler {
+	return &Handler{s: service.New(cfg)}
 }
 
 func (h Handler) ListProfiles(c *gin.Context) {
-	response, err := h.service.ListProfiles()
+	response, err := h.s.ListProfiles()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -43,7 +43,7 @@ func (h Handler) CreateProfile(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.CreateProfile(req.Name, req.Age); err != nil {
+	if err := h.s.CreateProfile(req.Name, req.Age); err != nil {
 		if errors.Is(err, common.ErrDuplicateProfileName) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
