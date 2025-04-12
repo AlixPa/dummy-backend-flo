@@ -1,4 +1,3 @@
-// users/routes.go
 package ping
 
 import (
