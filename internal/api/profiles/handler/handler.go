@@ -51,12 +51,9 @@ func (h Handler) CreateProfile(c *gin.Context) {
 		if errors.Is(err, common.ErrDuplicateProfileName) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
 	}
-
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{"message": "Profile created successfully"})
 }
