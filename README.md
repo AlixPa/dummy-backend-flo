@@ -68,7 +68,7 @@ Health check point.
 **Response**:
 ```json
 {
-  message: "pong"
+  "message": "pong"
 }
 ```
 
@@ -84,7 +84,7 @@ Base `URL: /api/profiles`
 
 Retrieves the list of all stored profiles.
 
-Response Example: 
+**Response Example**: 
 ```json
 {
   "data": [
