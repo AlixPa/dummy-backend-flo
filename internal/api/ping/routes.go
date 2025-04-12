@@ -2,11 +2,11 @@
 package ping
 
 import (
-	h "github.com/AlixPa/dummy-backend-flo/internal/api/ping/handler"
+	"github.com/AlixPa/dummy-backend-flo/internal/api/ping/handler"
 	"github.com/gin-gonic/gin" // or echo, chi, etc.
 )
 
 func RegisterRoutes(rg *gin.RouterGroup) {
 	ping := rg.Group("/ping")
-	ping.GET("/", h.Ping)
+	ping.GET("", handler.Ping)
 }
