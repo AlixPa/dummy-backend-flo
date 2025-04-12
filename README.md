@@ -6,7 +6,7 @@ This repository contains the backend for a simple application that manages a lis
 
 ### Prerequisites
 
-You’ll need to have Go installed.
+You'll need to have Go installed.
 
 ---
 
@@ -55,6 +55,23 @@ go run main.go
 
 This backend exposes a couple of basic APIs.
 
+### Error Responses
+
+All endpoints may return the following error responses:
+
+- 400 Bad Request: When the request body is invalid or missing required fields
+- 404 Not Found: When the requested profile ID doesn't exist
+- 500 Internal Server Error: When an unexpected server error occurs
+
+**Error Response Example**:
+```json
+{
+  "error": "Profile not found"
+}
+```
+
+---
+
 ### Ping Endpoint
 
 Base `URL: /api/ping`
@@ -64,6 +81,8 @@ Base `URL: /api/ping`
 URL: `GET /api/ping`
 
 Health check point.
+
+**Response Code**: 200 OK
 
 **Response**:
 ```json
@@ -84,6 +103,8 @@ Base `URL: /api/profiles`
 
 Retrieves the list of all stored profiles.
 
+**Response Code**: 200 OK
+
 **Response Example**: 
 ```json
 {
@@ -102,6 +123,24 @@ Retrieves the list of all stored profiles.
 
 ---
 
+`GET /api/profiles/{id}`
+
+Retrieves a specific profile by ID.
+
+**Response Code**: 200 OK
+
+**Response Example**:
+```json
+{
+  "data": {
+    "name": "Alice",
+    "age": 30
+  }
+}
+```
+
+---
+
 `POST /api/profiles`
 
 Creates a new profile.
@@ -114,9 +153,29 @@ Creates a new profile.
 }
 ```
 
-**Response**:
+**Response Code**: 201 Created
+```
+
+---
+
+`PUT /api/profiles/{id}`
+
+Updates an existing profile by ID.
+
+**Request Body Example**:
 ```json
 {
-  "message": "Profile created successfully"
+  "name": "Charlie Updated",
+  "age": 23
 }
 ```
+
+**Response Code**: 204 No Content
+
+---
+
+`DELETE /api/profiles/{id}`
+
+Deletes a profile by ID.
+
+**Response Code**: 204 No Content

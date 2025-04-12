@@ -3,12 +3,11 @@ package app
 import (
 	"github.com/AlixPa/dummy-backend-flo/internal/api/ping"
 	"github.com/AlixPa/dummy-backend-flo/internal/api/profiles"
-	"github.com/AlixPa/dummy-backend-flo/internal/common"
 	"github.com/gin-gonic/gin"
 )
 
 type routeurConfig interface {
-	GetDbTablesCsvPath() common.DbTablesCsv
+	GetProfilesTablePath() string
 }
 
 func SetupRouter(cfg routeurConfig) *gin.Engine {

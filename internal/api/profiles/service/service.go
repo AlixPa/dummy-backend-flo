@@ -4,37 +4,34 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
-	"github.com/AlixPa/dummy-backend-flo/internal/common"
+	"github.com/AlixPa/dummy-backend-flo/internal/api/profiles/model"
 	"github.com/gocarina/gocsv"
+	"golang.org/x/exp/slices"
 )
-
-type Profile struct {
-	Name string `csv:"name"`
-	Age  int    `csv:"age"`
-}
 
 type Service struct {
 	cfg ServiceConfig
 }
 
 type ServiceConfig interface {
-	GetDbTablesCsvPath() common.DbTablesCsv
+	GetProfilesTablePath() string
 }
 
 func New(cfg ServiceConfig) *Service {
 	return &Service{cfg}
 }
 
-func loadProfiles(path string) ([]*Profile, error) {
+func loadProfiles(path string) ([]*model.Profile, error) {
 	f, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 
-	profiles := []*Profile{}
+	profiles := []*model.Profile{}
 	if err := gocsv.UnmarshalFile(f, &profiles); err != nil {
 		if errors.Is(err, gocsv.ErrEmptyCSVFile) {
 			return profiles, nil
@@ -44,8 +41,32 @@ func loadProfiles(path string) ([]*Profile, error) {
 	return profiles, nil
 }
 
-func (s *Service) ListProfiles() ([]*Profile, error) {
-	return loadProfiles(s.cfg.GetDbTablesCsvPath().Profiles)
+func saveProfiles(path string, profiles []*model.Profile) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return gocsv.MarshalFile(&profiles, f)
+}
+
+func (s *Service) ListProfiles() ([]*model.Profile, error) {
+	return loadProfiles(s.cfg.GetProfilesTablePath())
+}
+
+func (s *Service) GetProfile(id string) (*model.Profile, error) {
+	profiles, err := loadProfiles(s.cfg.GetProfilesTablePath())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range profiles {
+		if p != nil && p.ID == id {
+			return p, nil
+		}
+	}
+	return nil, ErrProfileNotFound
 }
 
 func profileExists(path string, name string) (bool, error) {
@@ -55,32 +76,100 @@ func profileExists(path string, name string) (bool, error) {
 	}
 
 	for _, p := range profiles {
-		if p != nil && strings.EqualFold(p.Name, name) {
+		if p != nil && strings.EqualFold(*(p.Name), name) {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-func (s *Service) CreateProfile(name string, age int) error {
-	o, err := profileExists(s.cfg.GetDbTablesCsvPath().Profiles, name)
+func (s *Service) CreateProfile(profile model.ProfileFields) error {
+	if err := profile.FullFields(); err != nil {
+		return err
+	}
+
+	if err := profile.Validate(); err != nil {
+		return err
+	}
+
+	o, err := profileExists(s.cfg.GetProfilesTablePath(), *(profile.Name))
 	if err != nil {
 		return err
 	}
 	if o {
-		return fmt.Errorf("Profile with name %s is already in database : %w", name, common.ErrDuplicateProfileName)
+		return fmt.Errorf("profile with name %s is already in database: %w", *(profile.Name), ErrDuplicateProfileName)
 	}
 
-	f, err := os.OpenFile(s.cfg.GetDbTablesCsvPath().Profiles, os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = fmt.Fprintf(f, "%s,%d\n", name, age)
+	profiles, err := loadProfiles(s.cfg.GetProfilesTablePath())
 	if err != nil {
 		return err
 	}
 
-	return nil
+	// Generate a new ID
+	newID := strconv.Itoa(len(profiles) + 1)
+	newProfile := &model.Profile{
+		ID:            newID,
+		ProfileFields: profile,
+	}
+
+	profiles = append(profiles, newProfile)
+	return saveProfiles(s.cfg.GetProfilesTablePath(), profiles)
 }
+
+func (s *Service) UpdateProfile(id string, profile model.ProfileFields) error {
+	if err := profile.Validate(); err != nil {
+		return err
+	}
+
+	profiles, err := loadProfiles(s.cfg.GetProfilesTablePath())
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for _, p := range profiles {
+		if p != nil && p.ID == id {
+			if profile.Name != nil {
+				p.Name = profile.Name
+			}
+			if profile.Age != nil {
+				p.Age = profile.Age
+			}
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return ErrProfileNotFound
+	}
+
+	return saveProfiles(s.cfg.GetProfilesTablePath(), profiles)
+}
+
+func (s *Service) DeleteProfile(id string) error {
+	profiles, err := loadProfiles(s.cfg.GetProfilesTablePath())
+	if err != nil {
+		return err
+	}
+
+	found := false
+	for i, p := range profiles {
+		if p != nil && p.ID == id {
+			profiles = slices.Delete(profiles, i, i+1)
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return ErrProfileNotFound
+	}
+
+	return saveProfiles(s.cfg.GetProfilesTablePath(), profiles)
+}
+
+var (
+	ErrDuplicateProfileName = errors.New("duplicate profile name")
+	ErrProfileNotFound      = errors.New("profile not found")
+)

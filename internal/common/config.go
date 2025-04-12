@@ -7,47 +7,48 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-type DbTables struct {
-	Profiles string
-}
-
-type DbTablesCsv struct {
-	Profiles string
-}
+// Config represents the application configuration
 type Config struct {
-	// One should not modify the Port value by himself, use config.GetPort() instead
-	Port            string      `envconfig:"PORT" default:"8080"`
-	rootPath        string      `ignored:"true"`
-	dataPath        string      `ignored:"true"`
-	dbPath          string      `ignored:"true"`
-	dbTablesName    DbTables    `ignored:"true"`
-	dbTablesCsvPath DbTablesCsv `ignored:"true"`
+	// Server configuration
+	Port    string `envconfig:"PORT" default:"8080"`
+	GinMode string `envconfig:"GIN_MODE" default:"debug"`
+
+	// Database configuration
+	DataDir string `envconfig:"DATA_DIR" default:"data"`
+	DBDir   string `envconfig:"DB_DIR" default:"db"`
+
+	// Table names
+	ProfilesTable string `envconfig:"PROFILES_TABLE" default:"profiles"`
 }
 
-func (c *Config) GetDbTablesCsvPath() DbTablesCsv {
-	return c.dbTablesCsvPath
-}
-
+// GetPort returns the server port
 func (c *Config) GetPort() string {
 	return c.Port
 }
 
+// GetGinMode returns the Gin mode
+func (c *Config) GetGinMode() string {
+	return c.GinMode
+}
+
+// GetProfilesTablePath returns the full path to the profiles CSV file
+func (c *Config) GetProfilesTablePath() string {
+	return filepath.Join(c.DataDir, c.DBDir, c.ProfilesTable+".csv")
+}
+
+// LoadConfig loads the configuration from environment variables
 func LoadConfig() (*Config, error) {
 	var cfg Config
 
+	// Load from environment variables
 	if err := envconfig.Process("", &cfg); err != nil {
 		return nil, err
 	}
-	rootPath, err := os.Getwd()
-	if err != nil {
+
+	// Ensure data directories exist
+	if err := os.MkdirAll(filepath.Join(cfg.DataDir, cfg.DBDir), 0755); err != nil {
 		return nil, err
 	}
-	cfg.rootPath = rootPath
-	cfg.dataPath = filepath.Join(rootPath, "data")
-	cfg.dbPath = filepath.Join(cfg.dataPath, "db")
-
-	cfg.dbTablesName = DbTables{Profiles: "profiles"}
-	cfg.dbTablesCsvPath = DbTablesCsv{Profiles: filepath.Join(cfg.dbPath, cfg.dbTablesName.Profiles+".csv")}
 
 	return &cfg, nil
 }
