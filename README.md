@@ -10,6 +10,10 @@ Before running the application, you need to have Docker Desktop installed:
 2. Install Docker Desktop following the installation instructions for your operating system
 3. Start Docker Desktop and ensure it's running
 
+---
+
+Copy paste `.env-example` to `.env` and fill it with your own environment requirements.
+
 ## Reset the database
 
 To reset the database, use the following command:

@@ -33,6 +33,7 @@ services:
       PYTHONPATH: "/app"
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      UVICORN_MODE_DEBUG: False
     depends_on:
       - migrator
     ports:
