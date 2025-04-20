@@ -1,22 +1,10 @@
 .env
-data/
+data
 tmp/
+test/
+.venv
 
-# Go build files
-/bin/
-/obj/
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-
-# Go module files
-go.sum
-# Vendor directory (if using Go modules)
-vendor/
+__pycache__
 
 # IDE/editor files
 .vscode/
@@ -30,6 +18,3 @@ vendor/
 # Logs and temporary files
 *.log
 *.tmp
-
-# Coverage reports (from testing)
-*.coverprofile
