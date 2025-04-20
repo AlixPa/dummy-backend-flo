@@ -7,4 +7,4 @@ else
 fi
 
 echo "Starting database docker and running migrations"
-docker-compose up --build migrator
+docker-compose up migrator --build
