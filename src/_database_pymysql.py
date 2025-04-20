@@ -327,9 +327,9 @@ class MysqlClient:
             cond_not_null=cond_not_null,
             cond_null=cond_null,
         )
-        if limit and offset:
-            query = query + " LIMIT {limit} "
-            query = query + " OFFSET {offset} "
+        if limit:
+            query = query + f" LIMIT {limit} "
+            query = query + f" OFFSET {offset} "
         query = query + ";"
 
         res_mysql = self.execute(query=query, silent=silent)
