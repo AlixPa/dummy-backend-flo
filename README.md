@@ -179,3 +179,51 @@ Updates an existing profile by ID.
 Deletes a profile by ID.
 
 **Response Code**: 204 No Content
+
+# Dummy Backend API
+
+A simple REST API backend built with FastAPI.
+
+## Setup
+
+1. Create a virtual environment:
+```bash
+python -m venv venv
+```
+
+2. Activate the virtual environment:
+- On macOS/Linux:
+```bash
+source venv/bin/activate
+```
+- On Windows:
+```bash
+.\venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Running the Application
+
+To run the application, use the following command:
+
+```bash
+uvicorn src.main:app --reload
+```
+
+The API will be available at:
+- API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
+- Alternative API Documentation: http://localhost:8000/redoc
+
+## API Endpoints
+
+- `GET /`: Welcome message
+- `GET /health`: Health check endpoint
+
+## Development
+
+This project uses FastAPI for the backend API. The main application code is in `src/main.py`.
