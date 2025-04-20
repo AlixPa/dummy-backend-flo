@@ -1,10 +1,12 @@
 from fastapi import APIRouter
-from .schema import PingResponse
+
+from src._schemas import MessageResponse
+
 from .service import pong
 
 router = APIRouter(prefix="/ping")
 
 
-@router.get("", response_model=PingResponse)
+@router.get("", response_model=MessageResponse)
 async def ping():
-    return PingResponse(message=pong())
+    return MessageResponse(message=pong())

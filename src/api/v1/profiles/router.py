@@ -31,6 +31,8 @@ def create_profile(profile_input: ProfileCreateInput) -> MessageResponse:
         profile = add_profile(profile_input=profile_input)
     except NoConnectionError as e:
         raise e
+    except NoValueInsertionError as e:
+        raise HTTPWrongAttributesException(detail=str(e))
     except WrongAttributesException as e:
         raise HTTPWrongAttributesException(detail=str(e))
     return MessageResponse(message=f"Profile created with {profile.to_dict()}")

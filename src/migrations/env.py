@@ -1,19 +1,17 @@
 from logging.config import fileConfig
 
+from alembic import context
+from sqlalchemy import engine_from_config, pool
+
+from src import models
 from src._config import (
-    MYSQL_USER,
-    MYSQL_PASSWORD,
     MYSQL_DATABASE,
-    MYSQL_PORT,
     MYSQL_HOST,
+    MYSQL_PASSWORD,
+    MYSQL_PORT,
+    MYSQL_USER,
 )
 from src._models import Base
-from src import models
-
-from sqlalchemy import engine_from_config, pool
-from sqlalchemy import pool
-
-from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

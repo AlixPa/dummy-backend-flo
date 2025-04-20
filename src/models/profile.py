@@ -6,8 +6,8 @@ from src._exceptions import WrongAttributesException
 from src._models import BaseModel
 
 
-class User(BaseModel):
-    __tablename__ = "user"
+class Profile(BaseModel):
+    __tablename__ = "profile"
 
     id = Column(String(38), primary_key=True)
     name = Column(String(50), nullable=False)
